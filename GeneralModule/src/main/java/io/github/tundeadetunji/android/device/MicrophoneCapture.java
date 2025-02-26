@@ -16,21 +16,28 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Lightweight class to capture from device's microphone.
+ * File is saved in device's Downloads folder.
+ * The CallbackCommand's onRecordingFinished(File file) method provides access to the recording.
+ * @author tundeadetunji2017@gmail.com
+ */
 public class MicrophoneCapture {
 
     public interface CallbackCommand {
-        void onRecordingFinished(String filePath);
+        void onRecordingFinished(File recordFile);
     }
 
+    private File recordFile;
     private AudioRecord audioRecord;
     private boolean isRecording = false;
-    private String filename;
+    private String recordFileFilename;
     private int duration; // Duration in milliseconds
     private CallbackCommand callback; // Callback for recording finish
 
-    public MicrophoneCapture(int duration, TimeUnit timeUnit, String filename, CallbackCommand callback) {
+    public MicrophoneCapture(int duration, TimeUnit timeUnit, String recordFileFilename, CallbackCommand callback) {
         this.duration = (int) timeUnit.toMillis(duration); // Convert duration to milliseconds
-        this.filename = filename;
+        this.recordFileFilename = recordFileFilename;
         this.callback = callback; // Set the callback
     }
 
@@ -70,11 +77,11 @@ public class MicrophoneCapture {
 
     private void writeAudioDataToFile() {
         FileOutputStream os = null;
-        String pcmFilePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + filename + ".pcm";
-        File pcmFile = new File(pcmFilePath);
+        String pcmFilePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + recordFileFilename + ".pcm";
+        recordFile = new File(pcmFilePath);
 
         try {
-            os = new FileOutputStream(pcmFile);
+            os = new FileOutputStream(recordFile);
             byte[] buffer = new byte[1024];
             while (isRecording) {
                 int read = audioRecord.read(buffer, 0, buffer.length);
@@ -97,7 +104,7 @@ public class MicrophoneCapture {
 
         // Notify that recording is finished
         if (callback != null) {
-            callback.onRecordingFinished(pcmFilePath);
+            callback.onRecordingFinished(recordFile);
         }
     }
 
