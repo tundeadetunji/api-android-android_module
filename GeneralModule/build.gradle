@@ -1,14 +1,15 @@
 plugins {
     alias(libs.plugins.android.library)
+    id("maven-publish")
+    id("signing")
 }
 
 android {
-    namespace 'io.github.tundeadetunji.android'
+    namespace 'io.gitlab.tundeadetunji'
     compileSdk 34
 
     defaultConfig {
         minSdk 21
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -16,17 +17,25 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
-
     implementation libs.appcompat
     implementation libs.material
     testImplementation libs.junit
@@ -38,7 +47,55 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.github.bumptech.glide:glide:4.12.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
-    implementation group: 'org.kohsuke', name: 'github-api', version: '1.323'
-
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
+    implementation 'org.kohsuke:github-api:1.323'
 }
+
+group = GROUP
+version = VERSION_NAME
+
+afterEvaluate {
+    publishing {
+        publications {
+            create("release", MavenPublication) {
+                from(components["release"])
+
+                groupId = GROUP
+                artifactId = POM_ARTIFACT_ID
+                version = VERSION_NAME
+
+                pom {
+                    name.set("GeneralModule")
+                    description.set("A general-purpose Android library by Tunde Adetunji. Features both Java and Android specific components - like customized Dialogs and Clipboard access, etc. - that you can call with functional programming/callback style syntax.")
+                    url.set("https://github.com/tundeadetunji/GeneralModule")
+
+                    licenses {
+                        license {
+                            name.set("The Apache License, Version 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id.set("tundeadetunji")
+                            name.set("Tunde Adetunji")
+                            email.set("tundeadetunji2017@gmail.com")
+                        }
+                    }
+
+                    scm {
+                        connection.set("scm:git:github.com/tundeadetunji/GeneralModule.git")
+                        developerConnection.set("scm:git:ssh://github.com/tundeadetunji/GeneralModule.git")
+                        url.set("https://github.com/tundeadetunji/GeneralModule")
+                    }
+                }
+            }
+        }
+    }
+
+    signing {
+        sign(publishing.publications["release"])
+    }
+}
+

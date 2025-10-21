@@ -13,3 +13,12 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Gradle user-specific files
+.gradle/
+**/build/
+**/out/
+
+# Ignore global and local configs
+gradle.properties
+.gradle/gradle.properties

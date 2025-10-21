@@ -1,5 +1,25 @@
+// Root build.gradle
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+
 plugins {
-alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+}
+
+nexusPublishing {
+    connectTimeout.set(Duration.ofMinutes(3))
+    clientTimeout.set(Duration.ofMinutes(10))
+    transitionCheckOptions {
+        maxRetries.set(60)
+        delayBetween.set(Duration.ofSeconds(10))
+    }
+
+    repositories {
+        centralPortal {
+            username = project.findProperty("mavenCentralUsername")
+            password = project.findProperty("mavenCentralPassword")
+            stagingProfileId = "io.gitlab.tundeadetunji"  // Add this: Matches your GROUP; confirm in Central Portal
+        }
+    }
 }

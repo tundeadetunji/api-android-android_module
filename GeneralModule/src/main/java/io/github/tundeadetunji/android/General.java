@@ -157,7 +157,7 @@ public class General {
         return result;
     }
 
-    public static <K, V> List<R> mapToList(Map<K, V> map, SideToReturn as){
+    public static <R, K, V> List<R> mapToList(Map<K, V> map, SideToReturn as){
         return dictionaryToList(map, as);
     }
 
